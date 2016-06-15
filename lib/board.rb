@@ -2,72 +2,74 @@ require 'pry'
 
 class Board
 
+attr_accessor :squares, :remaining
+
   def initialize
+    @squares = []
     9.times do |whatever|
-      Square.new
+      @squares << Square.new
     end
-    Board.current_board
+    current_board
+    @remaining = (1..9).to_a
   end
 
-  def new_game
-    player = Person.new
-    computer = Computer.new
-  end
-
-  def self.current_board
+  def current_board
     puts "Current Board"
-    puts "#{Square.all[0].value}|#{Square.all[1].value}|#{Square.all[2].value}"
-    puts "#{Square.all[3].value}|#{Square.all[4].value}|#{Square.all[5].value}"
-    puts "#{Square.all[6].value}|#{Square.all[7].value}|#{Square.all[8].value}"
+    puts "#{squares[0].value}|#{squares[1].value}|#{squares[2].value}"
+    puts "#{squares[3].value}|#{squares[4].value}|#{squares[5].value}"
+    puts "#{squares[6].value}|#{squares[7].value}|#{squares[8].value}"
   end
 
-  def self.winning_chain
-    winning_chain = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,7],[0,4,8],[2,4,6]]
+  def winning_chain
+    winning_chain = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
   end
 
-  def self.new_move(move,team,player)
+  def new_move(move,team,player)
     if valid?(move) 
-      Square.all[move-1].value = team
-      self.current_board
-      Square.remaining.delete(move)
-      player.moves << move
+      squares[move-1].value = team
+      current_board
+      @remaining.delete(move)
     else 
-      player.invalid_move
+      player.invalid_move(player)
     end
   end
 
-  def self.valid?(move)
-    Square.all[move-1].value == "_" ? true : false
+  def valid?(move)
+    squares[move-1].value == "_" ? true : false
   end
 
-  def self.who_won?(player,computer)
-
+  def who_won?(player,computer)
       if winner?(player) == true
-        player.wins
-        puts "You got lucky!"
+        return player
       elsif winner?(computer) == true
-        computer.wins
-        puts "You lose; Computer Wins!"
+        return computer
       else
         false
       end
   end
 
-  def self.tie?(player,computer)
-    if winner?(human,computer) == false 
-      puts "Its a tie!"
+  def you_won(player)
+    player.wins
+    if player.class == Person
+      puts "You got lucky!"
+    else
+      puts "You lose; Computer Wins!"
     end
   end
 
-  def self.winner?(player)
-    self.winning_chain.each do |set|
-      if [Square.all[set[0]].value,Square.all[set[1]].value,Square.all[set[2]].value].uniq.join == player.team
-        binding.pry
-        return true
-      else
-        return false
-      end
-    end
+
+  def tie?(player,computer) 
+    # puts "Its a tie!"
+    who_won?(player,computer) == false && @remaining.count == 0
+  end
+
+  def winner?(player)
+    winning_chain.each {|set| return true if winner_chain(set,player)}
+    return false
+  end
+
+  def winner_chain(set,player)
+    [squares[set[0]].value,squares[set[1]].value,squares[set[2]].value].uniq.join == player.team
   end
 
 
