@@ -1,6 +1,4 @@
-require 'require_all'
-require_all 'lib/*.rb'
-require 'pry'
+require_relative 'environment.rb'
   
 class Runner
 
@@ -11,9 +9,17 @@ class Runner
   def start
     set_up_players
     how_many_rounds.times do |x|
-      puts "Begin Round"
+      puts "Begin New Round"
       game_run
+      puts "This round is now over!"
     end
+  end
+
+  def set_up_players
+    players = ChoosePlayers.new
+
+    @human = players.player
+    @computer = players.computer
   end
 
   def game_run
@@ -28,12 +34,6 @@ class Runner
     puts "How many rounds would you like to play?"
     rounds = gets.chomp.to_i
   end
-
-  def get_name
-    puts "What is your name?"
-    @human = gets.chomp
-  end
-
 
   def tie
     if @new_game.tie?(@human,@computer) == true
@@ -52,18 +52,11 @@ class Runner
   def set_up_board
     @new_game = Board.new
   end
-
-  def set_up_players
-    @human = Person.create_or_find_by_name(get_name)
-    @computer = Computer.new
-    @human.choose_team
-    @human.team == "X" ? @computer.team = "O" : @computer.team = "X"
-  end
     
   def round
-    @human.player_move(@new_game)
+    PlayerMove.new(@new_game,@human.team).run
     if @new_game.who_won?(@human,@computer) == false && @new_game.remaining.count != 0
-      @computer.computer_move(@new_game)
+      @computer.level.run(@new_game)
     end
   end
     
@@ -75,7 +68,7 @@ class Runner
 
   def reset_environment
     scoreboard
-    @new_game.squares.each {|square| square.value = "_"}
+    @new_game.squares.each {|square| square.value = " "}
     @new_game.remaining = (1..9).to_a
     return
   end

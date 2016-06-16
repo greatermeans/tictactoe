@@ -10,23 +10,30 @@ attr_accessor :squares, :remaining
       @squares << Square.new
     end
     current_board
-    @remaining = (1..9).to_a
+    @remaining = (0..8).to_a
   end
 
   def current_board
     puts "Current Board"
-    puts "#{squares[0].value}|#{squares[1].value}|#{squares[2].value}"
-    puts "#{squares[3].value}|#{squares[4].value}|#{squares[5].value}"
-    puts "#{squares[6].value}|#{squares[7].value}|#{squares[8].value}"
+    puts " #{squares[0].value}|#{squares[1].value}|#{squares[2].value}"
+    puts "-------"
+    puts " #{squares[3].value}|#{squares[4].value}|#{squares[5].value}"
+    puts "-------"
+    puts " #{squares[6].value}|#{squares[7].value}|#{squares[8].value}"
   end
 
   def winning_chain
-    winning_chain = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+    winning_chain = [
+      [0,1,2],[3,4,5],
+      [6,7,8],[0,3,6],
+      [1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ]
   end
 
   def new_move(move,team,player)
     if valid?(move) 
-      squares[move-1].value = team
+      squares[move].value = team
       current_board
       @remaining.delete(move)
     else 
@@ -35,7 +42,7 @@ attr_accessor :squares, :remaining
   end
 
   def valid?(move)
-    squares[move-1].value == "_" ? true : false
+    squares[move].value == " " ? true : false
   end
 
   def who_won?(player,computer)

@@ -1,4 +1,6 @@
-require 'require_all'
-require_all 'lib/*.rb'
 
-Pry.start
+
+require 'bundler/setup'
+
+Bundler.require
+require_all 'lib/'
